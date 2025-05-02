@@ -1,0 +1,15 @@
+{
+  "name": "extract-orderid-lambda",
+  "version": "1.0.0",
+  "description": "Extract orderId from Yamato",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "mongoose": "^6.3.5",
+    "uuid": "^8.3.2",
+    "@aws-sdk/client-textract": "^3.799.0"
+  }
+}

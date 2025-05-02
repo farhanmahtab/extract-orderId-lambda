@@ -1,0 +1,6 @@
+{
+  "env": "local",
+  "body": {
+    "fileName": "s3://idverificationbucket/images/c2.jpg"
+  }
+}
