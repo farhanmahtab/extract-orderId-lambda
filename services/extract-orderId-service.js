@@ -2,39 +2,36 @@ const {
   TextractClient,
   DetectDocumentTextCommand,
 } = require("@aws-sdk/client-textract");
+const { extractPath } = require("../utils/commonUtils");
 require("dotenv").config();
 
-const textractClient = new TextractClient({
-  region: "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
 const extractOrderId = async (event) => {
+  const textractClient = new TextractClient({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+
   const { fileName } = event.body;
 
   if (!fileName) {
     console.log("No fileName provided.");
-    // return res.status(400).send("No file name provided.");
+    return;
   }
+
+  const file = extractPath(fileName);
 
   const params = {
     Document: {
       S3Object: {
         Bucket: process.env.S3_BUCKET_NAME,
-        Name: fileName,
+        Name: file,
       },
     },
   };
 
-  console.log({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    bucket: process.env.S3_BUCKET_NAME,
-    fileName,
-  });
   try {
     console.log("Calling Textract to detect text...");
 
@@ -43,7 +40,6 @@ const extractOrderId = async (event) => {
     const jsonData = textractData.Blocks;
 
     console.log("Textract response received jsonData.");
-    console.log(jsonData);
 
     const lineBlocks = jsonData.filter((block) => block.BlockType === "LINE");
 
@@ -65,26 +61,17 @@ const extractOrderId = async (event) => {
 
     if (invoiceNumberBlock) {
       success = true;
-
       console.log("Detected invoice block (with dashes): ", invoiceNumber);
     }
 
     if (!success) {
       console.log("Failed to detect invoice fields.");
+      return null;
     }
-
-    // res.json({
-    //   status: success ? "success" : "fail",
-    //   invoiceData: {
-    //     invoiceNumber,
-    //   },
-    // });
+    return invoiceNumber;
   } catch (error) {
     console.error("Error occurred while detecting text:", error);
-    // res.status(500).json({
-    //   status: "error",
-    //   message: "An error occurred while detecting text.",
-    // });
+    return null;
   }
 };
 

@@ -6,9 +6,7 @@ exports.handler = async (event, context, callback) => {
   setConfig({ env: event.env });
 
   try {
-    console.log("++ Environment:", event.env);
-    await extractOrderId(event);
-    return "!!!Completed!!!";
+    return await extractOrderId(event);
   } catch (error) {
     console.log("++ Function closed unexpectedly!!!", error);
   }
